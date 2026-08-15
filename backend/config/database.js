@@ -3,17 +3,21 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-// Create connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || process.env.MYSQLHOST || process.env.MYSQL_HOST || 'localhost',
-  user: process.env.DB_USER || process.env.MYSQLUSER || process.env.MYSQL_USER || 'root',
-  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || '',
-  database: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'railway',
-  port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT || process.env.MYSQL_PORT || '3306', 10),
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
+// Create connection pool with MYSQL_URL / DATABASE_URL support
+const connectionString = process.env.MYSQL_URL || process.env.MYSQLURL || process.env.DATABASE_URL;
+
+const pool = connectionString
+  ? mysql.createPool(connectionString)
+  : mysql.createPool({
+      host: process.env.DB_HOST || process.env.MYSQLHOST || process.env.MYSQL_HOST || 'localhost',
+      user: process.env.DB_USER || process.env.MYSQLUSER || process.env.MYSQL_USER || 'root',
+      password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || '',
+      database: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'railway',
+      port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT || process.env.MYSQL_PORT || '3306', 10),
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+    });
 
 /**
  * Health check function verifying MySQL connection and correct database.
@@ -36,9 +40,10 @@ async function checkDatabaseHealth() {
       tables: tables,
     };
   } catch (error) {
+    console.error('[MySQL Health Check Error]:', error);
     return {
       connected: false,
-      error: error.message,
+      error: error && error.message ? error.message : String(error),
     };
   }
 }
