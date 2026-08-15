@@ -1,5 +1,20 @@
 -- Store Manager Database Schema for MySQL 8 ("np_branding")
 
+-- 1. Users Table (Created first so sales foreign key references it cleanly)
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  pin_hash VARCHAR(255) NOT NULL,
+  role ENUM('cashier', 'manager') NOT NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_username (username),
+  INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. Products Table
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -21,6 +36,7 @@ CREATE TABLE IF NOT EXISTS products (
   INDEX idx_category (category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 3. Sales Table
 CREATE TABLE IF NOT EXISTS sales (
   id INT AUTO_INCREMENT PRIMARY KEY,
   invoice_number VARCHAR(50) NOT NULL UNIQUE,
@@ -42,6 +58,7 @@ CREATE TABLE IF NOT EXISTS sales (
   INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 4. Sale Items Table
 CREATE TABLE IF NOT EXISTS sale_items (
   id INT AUTO_INCREMENT PRIMARY KEY,
   sale_id INT NOT NULL,
@@ -58,6 +75,7 @@ CREATE TABLE IF NOT EXISTS sale_items (
   INDEX idx_product_id (product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 5. Stock History Table
 CREATE TABLE IF NOT EXISTS stock_history (
   id INT AUTO_INCREMENT PRIMARY KEY,
   product_id INT NOT NULL,
@@ -70,17 +88,3 @@ CREATE TABLE IF NOT EXISTS stock_history (
   FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
   INDEX idx_product_history (product_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  username VARCHAR(100) NOT NULL UNIQUE,
-  pin_hash VARCHAR(255) NOT NULL,
-  role ENUM('cashier', 'manager') NOT NULL,
-  is_active TINYINT(1) DEFAULT 1,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_username (username),
-  INDEX idx_role (role)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
