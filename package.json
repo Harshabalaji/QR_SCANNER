@@ -7,8 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "expo export:web",
-    "serve": "serve web-build -s -l $PORT"
+    "build": "npx expo export -p web",
+    "serve": "serve dist -s -l $PORT"
   },
   "dependencies": {
     "serve": "^14.2.4",
