@@ -1,6 +1,6 @@
 import { Product, Sale, DashboardStats, User } from '../store/useStore';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://qrscanner-production-1707.up.railway.app/api';
 
 let authToken: string | null = null;
 
